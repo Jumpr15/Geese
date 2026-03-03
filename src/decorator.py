@@ -1,3 +1,4 @@
+
 import inspect
 tool_list = [] # MUST RUN FUNC FIRST TO REGISTER
 
@@ -36,8 +37,3 @@ def test_func(a, b):
 @inspector_decorator
 def sub_func(a, b):
      print(a - b)
-
-     
-# test_func(2, 2)
-# sub_func(5, 2)
-print(tool_list)

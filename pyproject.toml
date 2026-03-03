@@ -8,4 +8,5 @@ dependencies = [
     "boto3>=1.42.59",
     "dotenv>=0.9.9",
     "openai>=2.24.0",
+    "ruff>=0.15.4",
 ]

@@ -1,11 +1,9 @@
 import inspect
 
-tool_list = [] # MUST RUN FUNC FINISH TO REGISTER
+tool_list = [] # MUST RUN FUNC FIRST TO REGISTER
 
 def inspector_decorator(func):
-     def inspector_wrapper(*args, **kwargs):
-          func(*args, **kwargs)
-          
+     def inspector_wrapper(*args, **kwargs):   
           params = []
           sig = inspect.signature(func)
           args = sig.parameters.values()
@@ -18,6 +16,8 @@ def inspector_decorator(func):
                "tool_name": func.__name__,
                "parameter_list": params
           })
+               
+          func(*args, **kwargs)
           
      return inspector_wrapper
 
@@ -39,6 +39,6 @@ def sub_func(a, b):
      print(a - b)
 
      
-test_func(2, 2)
-sub_func(5, 2)
+# test_func(2, 2)
+# sub_func(5, 2)
 print(tool_list)

@@ -1,0 +1,21 @@
+available_tools_list = []
+
+def execute_tool_call(tool_call):
+     tool_name = tool_call["tool_name"]
+     parameters = tool_call["parameters"]
+     
+     if tool_name in available_tools_list:
+          tool = available_tools_list[tool_name]
+          tool_result = tool(parameters)
+          return tool_result
+     
+     return None
+     
+def check_tool_call(text):
+     re_pattern = r"<Tool_Call>(.*?)</Tool_Call>"
+     re_match = re.match(re_pattern, text, re.DOTALL)
+     if re_match is None:
+          return 
+     
+     tool_call = json.loads(re_match.group(1).strip())
+     return execute_tool_call(tool_call)

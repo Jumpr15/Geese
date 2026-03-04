@@ -3,7 +3,7 @@ import json
 import re
 
 from model.prompt_template import build_prompt_template
-from model.tools import sub_func, test_func, weather_func, is_currently_snowing
+from tools import sub_func, test_func, weather_func, is_currently_snowing
 
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -71,6 +71,7 @@ class Goose():
                if re_match is None:
                     pass
                
+               print(match)
                tool_call = json.loads(match)
                tool_output, recall_bool = self.execute_tool_call(tool_call)
                
@@ -113,11 +114,3 @@ class Goose():
           })
           return res_text
           
-# if __name__ == "__main__":
-     
-#      weather_func.recall = "True"
-
-#      tool_list = [sub_func, test_func, weather_func, is_currently_snowing]
-#      goose = Goose("deepseek.v3-v1:0", "You are a helpful ai assistant", tool_list)
-#      output = goose.fly("Whats the weather in copenhagen and is it currently snowing?")
-#      print(output)

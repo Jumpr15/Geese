@@ -1,6 +1,6 @@
 from datetime import datetime
 
-def create_file(file_name: str, file_extension: str):
+def create_file_tool(file_name: str, file_extension: str):
      curr_datetime = datetime.now()
      formatted_datetime = curr_datetime.strftime("%Y-%m-%s %H-%M-%S")
      
@@ -20,14 +20,36 @@ def create_file(file_name: str, file_extension: str):
      }
      return str(res)
 
+def write_to_file_tool(file_name: str, text_to_write: str):
+     res_status_flag = True
+     
+     try:
+          with open(file_name, "w") as file:
+               file.write(text_to_write)
+     except Exception as e:
+          res_status_flag = False
+          print(e)
+          
+     return {
+          "func_write_success": res_status_flag,
+          "func_text_written": text_to_write
+     }
+
 # no support for parameters currently
-def agent_code_exec(func_name: str):
+def execute_python_file_tool(func_name: str):
+     res_status_flag = True
+     
      try:
           with open(func_name) as func:
-               exec(func.read())
+               print(exec(func.read()))
      except Exception as e:
+          res_status_flag = False
           print(e)
-     # currently no return value
+          
+     return {
+          "func_execution_success": res_status_flag,
+          "func_return_value": None # no return value
+     }
      
 """
 Create Python File -> in current directory only
@@ -36,6 +58,15 @@ Create Python File -> in current directory only
      "parameters": {
           "file_name": str
           "file_extension": str
+     }
+}
+
+Agent Text/Code writing
+{
+     "tool_name": "write_to_file_tool",
+     "parameters:: {
+          file_name: str,
+          text_to_write: str
      }
 }
 

@@ -3,7 +3,7 @@ import json
 import re
 
 from prompt_template import build_prompt_template
-from tools import sub_func, test_func
+from tools import sub_func, test_func, weather_func, is_currently_snowing
 
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -35,7 +35,8 @@ class Goose():
                self.tool_list.append({
                     "tool_name": tool.__name__,
                     "parameter_list": params,
-                    "tool_func": tool
+                    "tool_func": tool,
+                    "tool_block": hasattr(tool, "recall")
                })
                
           self.messages = [
@@ -51,43 +52,69 @@ class Goose():
           
           for tool in self.tool_list:
                if tool_name == tool["tool_name"]:
-                    tool_result = tool["tool_func"](**parameters)
-                    return tool_result
+                    tool_output = tool["tool_func"](**parameters)
+                    recall_bool = tool["tool_block"]
+                    return tool_output, recall_bool
                
           return None
      
      def check_tool_call(self, text):
           re_pattern = r"<Tool_Call>(.*?)</Tool_Call>"
-          re_match = re.search(re_pattern, text, re.DOTALL)
-          if re_match is None:
-               return None
+          re_match = re.findall(re_pattern, text, re.DOTALL)
           
-          tool_call = json.loads(re_match.group(1).strip())
-          print(f"Tool Call is: {tool_call}")
-          out = self.execute_tool_call(tool_call)
-          return out
+          recall_flag = False
+          out = []
+          for match in re_match:
+               if re_match is None:
+                    pass
+               
+               tool_call = json.loads(match)
+               tool_output, recall_bool = self.execute_tool_call(tool_call)
+               
+               if recall_bool:
+                    recall_flag = True
+               
+               out.append(tool_output)
+
+          return [ out, recall_flag ]
      
      def fly(self, prompt):
           while True:
-               self.messages.append({
+               messages_copy = self.messages.copy()
+               messages_copy.append({
                     "role": "user",
                     "content": prompt
                })
                
                res = self.client.chat.completions.create(
                     model=self.model,
-                    messages=self.messages,
+                    messages=messages_copy,
                     stream=False      
                )
                
                res_text = res.choices[0].message.content
                tool_result = self.check_tool_call(res_text)
+               if tool_result is None:
+                    break
 
-          return res_text, tool_result
+               tool_output, recall_bool = tool_result
+               
+               if recall_bool == False:
+                    break
+               
+               prompt = prompt + f"Tool response: {str(tool_output)} Now answer the users question using the tool result given"
+
+          messages_copy.append({
+               "role": "user",
+               "content": prompt
+          })
+          return res_text
           
 if __name__ == "__main__":
+     
+     weather_func.recall = "True"
 
-     tool_list = [sub_func, test_func]
+     tool_list = [sub_func, test_func, weather_func, is_currently_snowing]
      goose = Goose("deepseek.v3-v1:0", "You are a helpful ai assistant", tool_list)
-     output, tool_output = goose.fly("can you call test_func, a=6, b=4")
-     print(output, tool_output)
+     output = goose.fly("Whats the weather in copenhagen and is it currently snowing?")
+     print(output)

@@ -2,10 +2,15 @@ import inspect
 import json
 import re
 
+from prompt_template import build_prompt_template
+from model.tools import sub_func, test_func
+
 from dotenv import load_dotenv
 from openai import OpenAI
 
+
 load_dotenv()
+
 class Goose():
      def __init__(
           self, 
@@ -37,38 +42,16 @@ class Goose():
                     "parameter_list": params,
                     "tool_func": tool
                })
-               #                self.tool_list.append(f"""
-               #      "tool_name": {tool.__name__},
-               #      "parameter_list": {params}
-               # """)
                
                string_tool_list.append(f"""
                     "tool_name": {tool.__name__},
                     "parameter_list": {params}
                """)
                
-               
-               
-          system_message = system_prompt + """\n
-Calling Tools Procedure:
-### IMPORTANT <Tool_Call> and </Tool_Call> must be called in this exact spelling and capitalisation
-
-<Tool_Call>
-{
-     "tool_name": tool name to call,
-     "parameters": {
-          key pair values of parameter and parameter values for all parameters in parameter_list
-     }
-}
-</Tool_Call>
-
-Tool Calls Available:\n
-""" + '\n'.join(string_tool_list)
-          
           self.messages = [
                {
                     "role": "system",
-                    "content": system_message
+                    "content": build_prompt_template(system_prompt, string_tool_list)
                }
           ]
           
@@ -114,15 +97,9 @@ Tool Calls Available:\n
           return res_text, tool_result
           
 if __name__ == "__main__":
-     def sub_func(a, b):
-          print(a - b)
-          
-     def test_func(a, b):
-          print(a + b)
-          c = "string"
 
      tool_list = [sub_func, test_func]
      goose = Goose("deepseek.v3-v1:0", "You are a helpful ai assistant", tool_list)
      output, tool_output = goose.fly("can you call test_func, a=6, b=4")
-     print(goose.available_tool_list)
+     # print(goose.available_tool_list)
      print(output, tool_output)

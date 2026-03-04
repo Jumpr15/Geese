@@ -2,8 +2,8 @@ import inspect
 import json
 import re
 
-from prompt_template import build_prompt_template
-from tools import sub_func, test_func, weather_func, is_currently_snowing
+from model.prompt_template import build_prompt_template
+from model.tools import sub_func, test_func, weather_func, is_currently_snowing
 
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -62,6 +62,9 @@ class Goose():
           re_pattern = r"<Tool_Call>(.*?)</Tool_Call>"
           re_match = re.findall(re_pattern, text, re.DOTALL)
           
+          if not re_match:
+               return None
+          
           recall_flag = False
           out = []
           for match in re_match:
@@ -75,7 +78,7 @@ class Goose():
                     recall_flag = True
                
                out.append(tool_output)
-
+          
           return [ out, recall_flag ]
      
      def fly(self, prompt):
@@ -102,7 +105,7 @@ class Goose():
                if recall_bool == False:
                     break
                
-               prompt = prompt + f"Tool response: {str(tool_output)} Now answer the users question using the tool result given"
+               prompt = prompt + f"Tool Response Context Section: {str(tool_output)}. Answer users original prompt."
 
           messages_copy.append({
                "role": "user",
@@ -110,11 +113,11 @@ class Goose():
           })
           return res_text
           
-if __name__ == "__main__":
+# if __name__ == "__main__":
      
-     weather_func.recall = "True"
+#      weather_func.recall = "True"
 
-     tool_list = [sub_func, test_func, weather_func, is_currently_snowing]
-     goose = Goose("deepseek.v3-v1:0", "You are a helpful ai assistant", tool_list)
-     output = goose.fly("Whats the weather in copenhagen and is it currently snowing?")
-     print(output)
+#      tool_list = [sub_func, test_func, weather_func, is_currently_snowing]
+#      goose = Goose("deepseek.v3-v1:0", "You are a helpful ai assistant", tool_list)
+#      output = goose.fly("Whats the weather in copenhagen and is it currently snowing?")
+#      print(output)

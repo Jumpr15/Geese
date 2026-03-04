@@ -44,18 +44,11 @@ messages = [
      }
 ]
 
-# available_tools_list = {
-#      get_weather.__name__: get_weather
-# }
-
 res = client.chat.completions.create(
      model="deepseek.v3-v1:0",
      messages=messages,
      stream=False
 )
-
-# res_text = res.choices[0].message.content
-# print(res_text)
 
 if __name__ == "__main__":
      while True:

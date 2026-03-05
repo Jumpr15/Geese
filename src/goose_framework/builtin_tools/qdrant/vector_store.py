@@ -1,3 +1,5 @@
+from typing import Union
+
 from uuid import uuid4
 from qdrant_client import QdrantClient, models
 from fastembed import TextEmbedding
@@ -30,7 +32,7 @@ class Qdrant_Client:
           embedding_list = list(embedding_generator)
           return embedding_list[0]
      
-     def insert_documents(self, documents):
+     def insert_documents(self, documents: Union[list, dict]):
           if isinstance(documents, list) is False:
                documents = [documents]
           try:
@@ -47,4 +49,20 @@ class Qdrant_Client:
           except Exception as e:
                print(e)
 
-     
+     def document_ss_by_id(self, document): 
+          # returns nearest points 
+          query_vectors = self.client.query_points(
+               collection_name=self.collection_name,
+               query=models.Document(text=document["content"], model=self.model_name),
+               limit=2
+          )
+          
+          formatted_queries = []
+          for vector in query_vectors.points:
+               formatted_queries.append({
+                    "id": vector.id,
+                    "score": vector.score,
+                    "payload": vector.payload
+               })
+               
+          return formatted_queries

@@ -52,8 +52,7 @@ class Goose():
           for tool in self.tool_list:
                if tool_name == tool["tool_name"]:
                     tool_output = tool["tool_func"](**parameters)
-                    recall_bool = tool["tool_block"]
-                    return tool_output, recall_bool
+                    return tool_output
                
           return None
      
@@ -70,15 +69,13 @@ class Goose():
                if re_match is None:
                     pass
                
-               # print(match)
                tool_call = json.loads(match)
-               tool_output, recall_bool = self.execute_tool_call(tool_call)
+               tool_output = self.execute_tool_call(tool_call)
                
-               if recall_bool:
-                    recall_flag = True
+               recall_flag = True
                
                out.append(tool_output)
-          
+               
           return [ out, recall_flag ]
      
      def fly(self, prompt):

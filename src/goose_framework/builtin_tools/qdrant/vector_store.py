@@ -49,11 +49,11 @@ class Qdrant_Client:
           except Exception as e:
                print(e)
 
-     def document_ss_by_id(self, document): 
+     def document_ss_by_id(self, query_text): 
           # returns nearest points 
           query_vectors = self.client.query_points(
                collection_name=self.collection_name,
-               query=models.Document(text=document["content"], model=self.model_name),
+               query=models.Document(text=query_text, model=self.model_name),
                limit=2
           )
           

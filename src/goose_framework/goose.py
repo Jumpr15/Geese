@@ -13,11 +13,10 @@ qdrant = Qdrant_Client(
      "rag_collection"
 )
 
-create_file_tool.recall = True
-execute_python_file_tool.recall = True
-write_to_file_tool.recall = True
+def user_personal_information_query_vector_store(query):
+     return qdrant.document_ss_by_id(query)
 
-tool_list = [create_file_tool, write_to_file_tool, execute_python_file_tool]
+tool_list = [create_file_tool, write_to_file_tool, execute_python_file_tool, user_personal_information_query_vector_store]
 
 goose = Goose(
      "deepseek.v3-v1:0",
@@ -26,7 +25,7 @@ goose = Goose(
 )
 
 out = goose.fly(
-     "Create a new python file named anaconda.py and write in the file code to print 'i am a anaconda' and then execute it"
+     "whats my favourite artist"
 )
 
 print(out)

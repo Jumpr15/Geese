@@ -33,7 +33,7 @@ class Qdrant_Client:
           embedding_list = list(embedding_generator)
           return embedding_list[0]
      
-     def insert_documents(self, documents: Union[list, dict]):
+     def insert_documents_tool(self, documents: Union[list, dict]):
           if isinstance(documents, list) is False:
                documents = [documents]
           
@@ -51,7 +51,7 @@ class Qdrant_Client:
           tool_name = inspect.currentframe().f_code.co_name
           
           arg_list = []
-          sig = inspect.signature(self.insert_documents) ### Manually set
+          sig = inspect.signature(self.insert_documents_tool) ### Manually set
           args = sig.parameters.values()
           for arg in args:
                arg_list.append(
@@ -65,7 +65,7 @@ class Qdrant_Client:
           }
 
 
-     def document_ss_by_id(self, query_text): 
+     def document_ss_by_id_tool(self, query_text): 
           # returns nearest points 
           query_vectors = self.client.query_points(
                collection_name=self.collection_name,
@@ -84,7 +84,7 @@ class Qdrant_Client:
           tool_name = inspect.currentframe().f_code.co_name
      
           arg_list = []
-          sig = inspect.signature(self.document_ss_by_id) ### Manually set
+          sig = inspect.signature(self.document_ss_by_id_tool) ### Manually set
           args = sig.parameters.values()
           for arg in args:
                arg_list.append(

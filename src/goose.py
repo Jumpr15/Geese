@@ -1,3 +1,5 @@
+### EXAMPLE USAGE OF LIBRARY
+
 import os
 from dotenv import load_dotenv
 
@@ -28,14 +30,16 @@ client = OpenAI(
 
 goose = Goose(
      client,
-     "qwen/qwen3-next-80b-a3b-instruct:free",
+     "qwen/qwen3-coder:free",
      "You are a helpful ai assistant",
      tool_list,
      ["violence", "hatred"]
 )
 
+user_input = input("User prompt: ")
+
 out = goose.fly(
-     "return a statement containing the words violence and hatred in exact name"
+     user_input
 )
 
 # openai/gpt-oss-120b:free

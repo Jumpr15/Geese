@@ -1,4 +1,5 @@
-### EXAMPLE USAGE OF LIBRARY
+### EXAMPLE USAGE OF LIBRARY 
+### RAG WITH TOOL CALLING
 
 import os
 from dotenv import load_dotenv
@@ -30,7 +31,7 @@ client = OpenAI(
 
 goose = Goose(
      client,
-     "qwen/qwen3-coder:free",
+     "qwen/qwen3-next-80b-a3b-instruct:free",
      "You are a helpful ai assistant",
      tool_list,
      ["violence", "hatred"]

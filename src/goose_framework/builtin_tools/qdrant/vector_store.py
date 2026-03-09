@@ -1,5 +1,6 @@
 from typing import Union
 
+import inspect
 from uuid import uuid4
 from qdrant_client import QdrantClient, models
 from fastembed import TextEmbedding
@@ -35,19 +36,34 @@ class Qdrant_Client:
      def insert_documents(self, documents: Union[list, dict]):
           if isinstance(documents, list) is False:
                documents = [documents]
-          try:
-               self.client.upsert(
-                    collection_name=self.collection_name,
-                    points=[
-                         models.PointStruct(
-                              id=uuid4(),
-                              payload=document,
-                              vector=models.Document(text=document["content"], model=self.model_name),
-                         )
-                    for document in documents] 
+          
+          insert_res = self.client.upsert(
+               collection_name=self.collection_name,
+               points=[
+                    models.PointStruct(
+                         id=uuid4(),
+                         payload=document,
+                         vector=models.Document(text=document["content"], model=self.model_name),
+                    )
+               for document in documents] 
+          )
+          
+          tool_name = inspect.currentframe().f_code.co_name
+          
+          arg_list = []
+          sig = inspect.signature(self.insert_documents) ### Manually set
+          args = sig.parameters.values()
+          for arg in args:
+               arg_list.append(
+                    arg.name
                )
-          except Exception as e:
-               print(e)
+               
+          res = {
+               "tool_name": tool_name,
+               "parameters": arg_list,
+               "insert_result": insert_res  
+          }
+
 
      def document_ss_by_id(self, query_text): 
           # returns nearest points 
@@ -64,5 +80,21 @@ class Qdrant_Client:
                     "score": vector.score,
                     "payload": vector.payload
                })
+               
+          tool_name = inspect.currentframe().f_code.co_name
+     
+          arg_list = []
+          sig = inspect.signature(self.document_ss_by_id) ### Manually set
+          args = sig.parameters.values()
+          for arg in args:
+               arg_list.append(
+                    arg.name
+               )
+               
+               res = {
+                    "tool_name": tool_name,
+                    "parameters": arg_list,
+                    "query_result": formatted_queries
+               }
                
           return formatted_queries

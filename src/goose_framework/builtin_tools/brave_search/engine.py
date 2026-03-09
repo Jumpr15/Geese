@@ -43,9 +43,7 @@ def web_search_tool(query):
           "query": query,
           "headers": headers, ### hash/fuzz api key later
           "params": params,
-          "search_results": [
-               results_list
-          ]
+          "search_results": results_list
      }
      
      tool_name = inspect.currentframe().f_code.co_name

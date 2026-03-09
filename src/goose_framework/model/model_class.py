@@ -15,10 +15,12 @@ class Goose():
           self, 
           model,
           system_prompt: str,
-          input_tool_list: list
+          input_tool_list: list,
+          guardrails: list[str] = None
      ):
           self.client = OpenAI()
           self.model = model
+          self.guardrails = guardrails
           
           self.tool_list = []
           
@@ -44,6 +46,8 @@ class Goose():
                     "content": build_prompt_template(system_prompt, self.tool_list)
                }
           ]
+       
+     def check_guardrails(self, prompt):
           
      def execute_tool_call(self, tool_call):
           tool_name = tool_call["tool_name"]

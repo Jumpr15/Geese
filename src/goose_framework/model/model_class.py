@@ -13,12 +13,13 @@ load_dotenv()
 class Goose():
      def __init__(
           self, 
+          open_ai_client,
           model,
           system_prompt: str,
           input_tool_list: list,
           guardrails: list[str] = None
      ):
-          self.client = OpenAI()
+          self.client = open_ai_client
           self.model = model
           self.guardrails = guardrails
           
@@ -48,6 +49,11 @@ class Goose():
           ]
        
      def check_guardrails(self, prompt):
+          for guardrail in self.guardrails:
+               re_pattern = guardrail
+               if re.search(re_pattern, prompt) is not None:
+                    return True
+
           
      def execute_tool_call(self, tool_call):
           tool_name = tool_call["tool_name"]
@@ -83,6 +89,9 @@ class Goose():
           return [ out, recall_flag ]
      
      def fly(self, prompt):
+          if self.check_guardrails(prompt):
+               return "Request Blocked"
+               
           while True:
                messages_copy = self.messages.copy()
                messages_copy.append({

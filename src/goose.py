@@ -4,7 +4,7 @@
 import os
 from dotenv import load_dotenv
 
-from openai import OpenAI
+from openai import OpenAI, AzureOpenAI
 
 from model.model_class import Goose
 from builtin_tools.brave_search.engine import web_search_tool
@@ -20,31 +20,38 @@ qdrant = Qdrant_Client(
 )
 
 def user_personal_information_query_vector_store(query):
-     return qdrant.document_ss_by_id(query)
+     return qdrant.document_ss_by_id_tool(query)
 
 tool_list = [create_file_tool, write_to_file_tool, execute_python_file_tool, user_personal_information_query_vector_store, web_search_tool]
 
-client = OpenAI(
-  base_url="https://openrouter.ai/api/v1",
-  api_key=os.getenv("OPEN_ROUTER_API_KEY"),
+# client = OpenAI(
+#   base_url=os.getenv("AZURE_KIMI_DEPLOYMENT_ENDPOINT"),
+#   api_key=os.getenv("AZURE_FOUNDRY_API_KEY"),
+# )
+
+client = AzureOpenAI(
+     base_url=os.getenv("AZURE_DEEPSEEK_DEPLOYMENT_ENDPOINT"),
+     api_key=os.getenv("AZURE_FOUNDRY_API_KEY"),
+     api_version="2024-12-01-preview"
 )
+
+
 
 goose = Goose(
      client,
-     "qwen/qwen3-next-80b-a3b-instruct:free",
+     "DeepSeek-V3.2",
      "You are a helpful ai assistant",
      tool_list,
      ["violence", "hatred"]
 )
 
-user_input = input("User prompt: ")
+while True:
+     user_input = input("User prompt: ")
 
-out = goose.fly(
-     user_input
-)
+     out = goose.fly(
+          user_input
+     )
 
-# openai/gpt-oss-120b:free
-# qwen/qwen3-coder:free
-# qwen/qwen3-next-80b-a3b-instruct:free
-
-print(out)
+     print(out)
+     for msg in goose.messages:
+          print(msg)

@@ -78,26 +78,25 @@ class Goose():
           for match in re_match:
                if re_match is None:
                     pass
-               
+     
                tool_call = json.loads(match)
                tool_output = self.execute_tool_call(tool_call)
                
-               recall_flag = True
-               
                out.append(tool_output)
                
-          return [ out, recall_flag ]
+          return out
      
      def fly(self, prompt):
           if self.check_guardrails(prompt):
                return "Request Blocked"
+          
+          self.messages.append({
+               "role": "user",
+               "content": prompt
+          })
                
           while True:
                messages_copy = self.messages.copy()
-               messages_copy.append({
-                    "role": "user",
-                    "content": prompt
-               })
                
                res = self.client.chat.completions.create(
                     model=self.model,
@@ -106,20 +105,17 @@ class Goose():
                )
                
                res_text = res.choices[0].message.content
+               print(res_text)
                tool_result = self.check_tool_call(res_text)
                if tool_result is None:
                     break
 
-               tool_output, recall_bool = tool_result
-               
-               if recall_bool == False:
-                    break
-               
+               tool_output = tool_result
                prompt = prompt + f"Tool Response Context Section: {str(tool_output)}. Answer users original prompt."
 
-          messages_copy.append({
-               "role": "user",
-               "content": prompt
+          self.messages.append({
+               "role": "assistant",
+               "content": res_text
           })
           return res_text
           
